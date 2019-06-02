@@ -1,10 +1,5 @@
-
-setwd("~/PXGBS/GBS_git") #remove on git
-
 library(adegenet) 
 library(hierfstat)
-
-sessionInfo()
 
 #convert SNPs from hapMap into 0,1,and 2 format 
 #( 0 is homozygote, 1 is heterozygote and 2 # is another type of homozygote.)
