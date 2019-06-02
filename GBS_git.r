@@ -1,5 +1,4 @@
 
-setwd("~/PXGBS/GBS_git") #remove on git
 
 library(adegenet) 
 library(hierfstat)
