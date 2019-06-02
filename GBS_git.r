@@ -1,4 +1,5 @@
 
+setwd("~/PXGBS/GBS_git") #remove on git
 
 library(adegenet) 
 library(hierfstat)
@@ -68,19 +69,14 @@ for(i in 9:ncol(map2snp109)){
 # subset snps cols with only
 px_snps = map2snp109[0:nrow(map2snp109), 9:ncol(map2snp109)] 
 
-####### Table 1 FST calculation host ########
-# convert df to genind format
-px_genind = df2genind(px_snps, ploidy=1, ncode=1) # no isolate names 
+##### Table 1. Count freq of each location ##### 
+library(plyr)
+isolate109 <- reshape(count(map2snp109, c("Location", "Host")), 
+                      direction = "wide", idvar = "Host", timevar = "Location")
+isolate109[is.na(isolate109)] <- 0
+isolate109
+colnames(isolate109)<-c('Host \ Location', 'CA', 'IL', 'IN', 'Italy', 'MI', 'NY', 'TX', 'WA', 'WA')
 
-# assign hosts as populations 
-pop(px_genind)<-map2snp109[0:nrow(map2snp109), 4] 
-
-# check freq of each host
-as.data.frame(table(map2snp109[0:nrow(map2snp109), 4]))
-
-# fst calculation, host as population
-host_fst <- pairwise.fst(px_genind, res.type="matrix") 
-write.csv(host_fst, file = "host_fst.csv") 
 
 ####### Table 2 FST calculation location ########
 # convert df to genind format
@@ -97,6 +93,19 @@ loc_fst <- pairwise.fst(px_genind, res.type="matrix")
 
 write.csv(loc_fst, file = "loc_fst.csv") 
 
+####### Table 3 FST calculation host ########
+# convert df to genind format
+px_genind = df2genind(px_snps, ploidy=1, ncode=1) # no isolate names 
+
+# assign hosts as populations 
+pop(px_genind)<-map2snp109[0:nrow(map2snp109), 4] 
+
+# check freq of each host
+as.data.frame(table(map2snp109[0:nrow(map2snp109), 4]))
+
+# fst calculation, host as population
+host_fst <- pairwise.fst(px_genind, res.type="matrix") 
+write.csv(host_fst, file = "host_fst.csv") 
 
 ####### Figure 1 Kmeans elbow test #######
 #Elbow Method for finding the optimal number of clusters
@@ -109,16 +118,6 @@ plot(1:k.max, wss,
      type="b", pch = 19, frame = FALSE, 
      xlab="Number of clusters K",
      ylab="Total within-clusters sum of squares")
-
-
-
-##### Table 1. Count freq of each location ##### 
-library(plyr)
-isolate109 <- reshape(count(map2snp109, c("Location", "Host")), 
-                      direction = "wide", idvar = "Host", timevar = "Location")
-isolate109[is.na(isolate109)] <- 0
-isolate109
-colnames(isolate109)<-c('Host \ Location', 'CA', 'IL', 'IN', 'Italy', 'MI', 'NY', 'TX', 'WA', 'WA')
 
 
 ##### Figure 2. Dendrogram ##### 
