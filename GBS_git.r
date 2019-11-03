@@ -1,4 +1,3 @@
-setwd("~/PXGBS/GBS_git") #remove on git
 library(adegenet) 
 library(hierfstat)
 library(RColorBrewer)
@@ -207,7 +206,7 @@ colored_bars(cbind(col_cluster7, col_cluster6,col_cluster5,
 # customize legend pos
 legend(title="state",
        title.adj =0.01, 
-       x = 1, y = 60, 
+       x = 1, y = 68, 
        cex =0.6, ncol=6,
        legend = as.character(unique(state_ab)),
        fill = unique(col_state_ab))
