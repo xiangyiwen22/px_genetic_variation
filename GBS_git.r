@@ -1,5 +1,8 @@
+setwd("~/PXGBS/GBS_git") #remove on git
 library(adegenet) 
 library(hierfstat)
+library(RColorBrewer)
+library(dendextend)
 
 #convert SNPs from hapMap into 0,1,and 2 format 
 #( 0 is homozygote, 1 is heterozygote and 2 # is another type of homozygote.)
@@ -46,10 +49,10 @@ hapMap2genlight <- function(file){
   return(x)
 }
 
-####### Read dataset ########
+####### Read dataset and cleanup########
 # 109 isolates with information of collections 
 # (iso names, hosts, location of collection)
-map2snp109<-read.csv("map2snp109.csv", header = TRUE)
+map2snp109<-read.csv("./raw_data/map2snp109.csv", header = TRUE)
 
 # fill missing hosts as unknown
 # "^$" represents empty string "" (in regular expression ^-start, $-end) 
@@ -68,10 +71,11 @@ px_snps = map2snp109[0:nrow(map2snp109), 9:ncol(map2snp109)]
 library(plyr)
 isolate109 <- reshape(count(map2snp109, c("Location", "Host")), 
                       direction = "wide", idvar = "Host", timevar = "Location")
+# replace NA with 0
 isolate109[is.na(isolate109)] <- 0
-isolate109
-colnames(isolate109)<-c('Host \ Location', 'CA', 'IL', 'IN', 'Italy', 'MI', 'NY', 'TX', 'WA', 'WA')
-
+# rename column names
+colnames(isolate109)<-c('Host \ Location', 'CA', 'IL', 'IN', 'Italy', 'MI', 'NY', 'TX', 'WA', 'WI')
+write.csv(isolate109, file = "./results/table1.csv") 
 
 ####### Table 2 FST calculation location ########
 # convert df to genind format
@@ -84,9 +88,21 @@ pop(px_genind)<-map2snp109[0:nrow(map2snp109), 5]
 as.data.frame(table(map2snp109[0:nrow(map2snp109), 5]))
 
 #location fst calculation
+#pairwise calculation takes a while to run
 loc_fst <- pairwise.fst(px_genind, res.type="matrix") 
 
-write.csv(loc_fst, file = "loc_fst.csv") 
+write.csv(loc_fst, file = "./results/loc_fst.csv") 
+
+# Simpson
+library("poppr")
+# ref https://grunwaldlab.github.io/Population_Genetics_in_R/Genotypic_EvenRichDiv.html
+# convert from genind to genclone, after assign location as populations 
+px_genclone <- as.genclone(px_genind)
+
+# lambda column calculated Simpsons index
+px_diversity <- poppr(px_genclone)
+write.csv(px_diversity, file = "./results/px_diversity.csv") 
+
 
 ####### Table 3 FST calculation host ########
 # convert df to genind format
@@ -102,12 +118,11 @@ as.data.frame(table(map2snp109[0:nrow(map2snp109), 4]))
 host_fst <- pairwise.fst(px_genind, res.type="matrix") 
 write.csv(host_fst, file = "host_fst.csv") 
 
-####### Figure 1 Kmeans elbow test #######
+####### Figure 2. Kmeans elbow test #######
 #Elbow Method for finding the optimal number of clusters
 set.seed(123)
 # Compute and plot wss for k = 2 to k = 15.
 k.max <- 15
-
 wss <- sapply(1:k.max, function(k){kmeans(px_snps, k, nstart=50,iter.max = 15)$tot.withinss})
 plot(1:k.max, wss,
      type="b", pch = 19, frame = FALSE, 
@@ -115,69 +130,42 @@ plot(1:k.max, wss,
      ylab="Total within-clusters sum of squares")
 
 
-##### Figure 2. Dendrogram ##### 
-
+##### Figure 1. Dendrogram ##### 
+# assign row names: isolate name - host
 rownames(px_snps)<-do.call(paste,c(map2snp109[c("Row.names","Host")],sep="-"))
+# check dimension
 dim(px_snps)
+# create dendrogram
 dend<-as.dendrogram(hclust(dist(px_snps)))
 
-# add host color bar 
-# Create a vector giving a color for each isolate to which host it belongs to
+#### add host color bar 
+# replicate a vector of host names with Unknown, replace it with host name one by one
 host_ab <- rep("Unknown", length(rownames(px_snps)))
+# Create a vector giving a color for each isolate to which host it belongs to
+host_list <- c("Unknown", "Cucurbita pepo", "Cucurbita maxima", "Cucumis melo", "Cucumis sativus", "Cucurbita moschata", "Lagenaria siceraria")
 
-hos_X <- grepl("Cucurbita_pepo", rownames(px_snps))
-host_ab[hos_X] <- "Cucurbita pepo"
-
-hos_X <- grepl("Cucurbita_maxima", rownames(px_snps))
-host_ab[hos_X] <- "Cucurbita maxima"
-
-hos_X <- grepl("Cucumis_melo", rownames(px_snps))
-host_ab[hos_X] <- "Cucumis melo"
-
-hos_X <- grepl("Cucumis_sativus", rownames(px_snps))
-host_ab[hos_X] <- "Cucumis sativus"
-
-hos_X <- grepl("Cucurbita_moschata", rownames(px_snps))
-host_ab[hos_X] <- "Cucurbita moschata"
-
-hos_X <- grepl("Lagenaria_siceraria", rownames(px_snps))
-host_ab[hos_X] <- "Lagenaria siceraria"
-
+for (host in host_list) {
+  # find index with this host
+  hos_X <- grepl(chartr(old = " ", new = "_", host), rownames(px_snps))
+  # replace it with this host name
+  host_ab[hos_X] <- host
+}
 
 host_ab <- factor(host_ab)
 n_host_ab <- length(unique(host_ab))
 cols_7<-brewer.pal(7, "Dark2")
 col_host_ab <- cols_7[host_ab]
 
-
-# add location color bar 
+####  add location color bar 
 # Create a vector giving a color for each isolate to which location it belongs to
-state_ab <- rep("Unknown", length(rownames(px_snps)))
+state_ab <- rep("", length(rownames(px_snps)))
 
-loc_X <- grepl("IL", rownames(px_snps))
-state_ab[loc_X] <- "IL"
-loc_X <- grepl("Italy", rownames(px_snps))
-state_ab[loc_X] <- "Italy"
-loc_X <- grepl("NY", rownames(px_snps))
-state_ab[loc_X] <- "NY"
-loc_X <- grepl("WI", rownames(px_snps))
-state_ab[loc_X] <- "WI"
-loc_X <- grepl("CA", rownames(px_snps))
-state_ab[loc_X] <- "CA"
-loc_X <- grepl("IN", rownames(px_snps))
-state_ab[loc_X] <- "IN"
-loc_X <- grepl("WA", rownames(px_snps))
-state_ab[loc_X] <- "WA"
-loc_X <- grepl("IN", rownames(px_snps))
-state_ab[loc_X] <- "IN"
-loc_X <- grepl("MI", rownames(px_snps))
-state_ab[loc_X] <- "MI"
-loc_X <- grepl("TX", rownames(px_snps))
-state_ab[loc_X] <- "TX"
-loc_X <- grepl("PA", rownames(px_snps))
-state_ab[loc_X] <- "PA"
-loc_X <- grepl("CH", rownames(px_snps))
-state_ab[loc_X] <- "Chile"
+loc_list<-c('CA', 'IL', 'IN', 'Italy', 'MI', 'NY', 'TX', 'WA', 'WI')
+for (loc in loc_list) {
+  # find index with this loc
+  loc_X <- grepl(loc, rownames(px_snps))
+  state_ab[loc_X] <- loc
+}
 
 state_ab <- factor(state_ab)
 n_state_ab <- length(unique(state_ab))
@@ -186,7 +174,6 @@ col_state_ab <- cols_11[state_ab]
 
 # color labels by state:
 labels_colors(dend) <- col_state_ab[order.dendrogram(dend)]
-
 
 # start building tree
 # showing the various clusters cuts 
@@ -233,3 +220,4 @@ legend(title = "host",
        legend = as.character(unique(host_ab)),
        fill = unique(col_host_ab)
 )
+
