@@ -11,7 +11,7 @@ This research was conducted to identify species causing powdery mildew on cucurb
 
 
 #### Conclusion
-We found that isolates collected in Illinois had high within-sample genetic diversity, which was shown by both clustering analysis (Fig. 1) and Simpson’s index values (Simpson 1949), but there was higher genetic similarity between Illinois and other locations based on Fst calculations
+We found that isolates collected in Illinois had high within-sample genetic diversity, which was shown by both clustering analysis and Simpson’s index values (Simpson 1949), but there was higher genetic similarity between Illinois and other locations based on Fst calculations
 
 Fig. 1. Dendrogram of hierarchical clustering with color coded bars of isolates from different hosts, locations and clustering groups by K-means analysis
  Seven distinct groups (from left to right: red, brown, light green, green, light blue, blue, and pink) of 109 *Podosphaera xanthii* isolates with 2,266 single nucleotide polymorphisms, identified by hierarchical clustering on the distance matrix. Different groupings are shown for different values of k (k = 3 to 7). *P. xanthii* isolates were collected from six known hosts (*Cucumis melo*, *Cucumis sativus*, *Cucurbita maxima*, *Cucurbita moschata*, *Cucurbita pepo*, and *Lagenaria siceraria*) and one unknown cucurbit host in California (CA), Illinois (IL), Indiana (IN), Michigan (MI), New York (NY), Texas (TX), Washington (WA), Wisconsin (WI), and Italy with 16, 58, 3, 9, 3, 8, 6, 2, and 4 isolates, respectively.
