@@ -15,11 +15,9 @@ We found that isolates collected in Illinois had high within-sample genetic dive
 
 Fig. 1. Dendrogram of hierarchical clustering with color coded bars of isolates from different hosts, locations and clustering groups by K-means analysis
  Seven distinct groups (from left to right: red, brown, light green, green, light blue, blue, and pink) of 109 *Podosphaera xanthii* isolates with 2,266 single nucleotide polymorphisms, identified by hierarchical clustering on the distance matrix. Different groupings are shown for different values of k (k = 3 to 7). *P. xanthii* isolates were collected from six known hosts (*Cucumis melo*, *Cucumis sativus*, *Cucurbita maxima*, *Cucurbita moschata*, *Cucurbita pepo*, and *Lagenaria siceraria*) and one unknown cucurbit host in California (CA), Illinois (IL), Indiana (IN), Michigan (MI), New York (NY), Texas (TX), Washington (WA), Wisconsin (WI), and Italy with 16, 58, 3, 9, 3, 8, 6, 2, and 4 isolates, respectively.
-  ![GitHub Logo](/dend.png)
-  
-Table 1. 
+  ![GitHub Logo](/results/dend.png)
 
-Table 2. 
-
-Table 3.
-  - `host_fst` and `loc_fst`: Pairwise Fst calculation for isolates from different populations, host wise and location wise, respectively. 
+![Table 2.](/results/table2.png)<br>
+Combined results from raw output [fst index](/results/loc_fst.csv) and [Simpson's index](/results/px_diversity.csv) <br>
+![Table 3.](/results/table3.png)<br>
+From raw output [fst index calculated based on host](/results/host_fst.csv)<br>
